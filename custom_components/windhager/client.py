@@ -19,6 +19,7 @@ class WindhagerHttpClient:
         auth = DigestAuth("USER", self.password, client)
         ret = await auth.request("GET", "http://" + self.host + "/api/1.0/lookup" + url)
         json = await ret.json()
+
         await client.close()
         return json
 
@@ -31,6 +32,10 @@ class WindhagerHttpClient:
             data=bytes('{"OID":"' + oid + '","value":"' + value + '"}', "utf-8"),
         )
         await client.close()
+
+    @staticmethod
+    def slugify(identifier_str):
+        return identifier_str.replace(".", "-").replace("/", "-")
 
     async def fetch_all(self):
         if self.oids is None:
@@ -58,9 +63,7 @@ class WindhagerHttpClient:
                     # Climate control
                     self.devices.append(
                         {
-                            "id": (self.host + device_id)
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "id": self.slugify(self.host + device_id),
                             "name": functions[0]["name"],
                             "type": "climate",
                             "prefix": device_id,
@@ -71,9 +74,7 @@ class WindhagerHttpClient:
                                 fct_id + "/2/10/0",
                                 fct_id + "/3/58/0",
                             ],
-                            "device_id": (self.host + device_id)
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + device_id),
                             "device_name": functions[0]["name"],
                         }
                     )
@@ -89,7 +90,7 @@ class WindhagerHttpClient:
                             device_id + fct_id + "/2/10/0",
                             # Outside temperature
                             device_id + fct_id + "/0/0/0",
-                            # Temp confort correction
+                            # Temp comfort correction
                             device_id + fct_id + "/3/58/0",
                             # Tempe correction
                             device_id + fct_id + "/3/7/0",
@@ -99,23 +100,19 @@ class WindhagerHttpClient:
                     # Current temperature
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/0/1/0"
                                 + "/3/58/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"] + " Current Temperature",
                             "type": "temperature",
                             "correction_oid": device_id + fct_id + "/3/58/0",
                             "oid": device_id + fct_id + "/0/1/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
@@ -123,22 +120,18 @@ class WindhagerHttpClient:
                     # Current temperature (real)
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/0/1/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"]
                             + " Current Temperature real",
                             "type": "temperature",
                             "oid": device_id + fct_id + "/0/1/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
@@ -146,15 +139,13 @@ class WindhagerHttpClient:
                     # Comfort Temperature correction
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/3/58/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"]
                             + " Comfort Temperature Correction",
                             "type": "sensor",
@@ -162,24 +153,20 @@ class WindhagerHttpClient:
                             "state_class": None,
                             "unit": "K",
                             "oid": device_id + fct_id + "/3/58/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Current Temperature correction
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/3/7/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"]
                             + " Current Temperature Correction",
                             "type": "sensor",
@@ -187,52 +174,42 @@ class WindhagerHttpClient:
                             "state_class": None,
                             "unit": "K",
                             "oid": device_id + fct_id + "/3/7/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Target temperature
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/1/1/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"] + " Target Temperature",
                             "type": "temperature",
                             "correction_oid": device_id + fct_id + "/3/58/0",
                             "oid": device_id + fct_id + "/1/1/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Outside temperature
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/0/0/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"] + " Outside Temperature",
                             "type": "temperature",
                             "oid": device_id + fct_id + "/0/0/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
@@ -255,7 +232,7 @@ class WindhagerHttpClient:
                             device_id + fct_id + "/0/11/0",
                             # Heater temperature
                             device_id + fct_id + "/0/7/0",
-                            # Combusion chamber temperature
+                            # Combustion chamber temperature
                             device_id + fct_id + "/0/45/0",
                             # Heater status
                             device_id + fct_id + "/2/1/0",
@@ -271,103 +248,85 @@ class WindhagerHttpClient:
                     # Heater current power factor
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/0/9/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"] + " Power factor",
                             "type": "sensor",
                             "device_class": "power_factor",
                             "state_class": None,
                             "unit": "%",
                             "oid": device_id + fct_id + "/0/9/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Fumes temperature
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/0/11/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"] + " Fumes Temperature",
                             "type": "temperature",
                             "oid": device_id + fct_id + "/0/11/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                                .replace(".", "-")
-                                .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Heater temperature
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/0/7/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"] + " Heater Temperature",
                             "type": "temperature",
                             "oid": device_id + fct_id + "/0/7/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Combustion chamber temperature
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/0/45/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"]
                             + " Combustion chamber Temperature",
                             "type": "temperature",
                             "oid": device_id + fct_id + "/0/45/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Heater status
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/2/1/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"] + " Heater status",
                             "options": [
                                 "Brûleur bloqué",
@@ -389,52 +348,42 @@ class WindhagerHttpClient:
                             ],
                             "type": "select",
                             "oid": device_id + fct_id + "/2/1/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Pellet consumption
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/23/100/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"] + " Pellet consumption",
                             "type": "total",
                             "oid": device_id + fct_id + "/23/100/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
                     # Total pellet consumption
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/23/103/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"]
                             + " Total Pellet consumption",
                             "type": "total_increasing",
                             "oid": device_id + fct_id + "/23/103/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
@@ -442,15 +391,13 @@ class WindhagerHttpClient:
                     # Running time until stage 1 cleaning
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/20/61/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"]
                             + " Running time until stage 1 cleaning",
                             "type": "sensor",
@@ -458,9 +405,7 @@ class WindhagerHttpClient:
                             "state_class": None,
                             "unit": "h",
                             "oid": device_id + fct_id + "/20/61/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
@@ -468,15 +413,13 @@ class WindhagerHttpClient:
                     # Running time until stage 2 cleaning
                     self.devices.append(
                         {
-                            "id": (
+                            "id": self.slugify(
                                 self.host
                                 + "/1/"
                                 + str(device["nodeId"])
                                 + fct_id
                                 + "/20/62/0"
-                            )
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            ),
                             "name": functions[0]["name"]
                             + " Running time until stage 2 cleaning",
                             "type": "sensor",
@@ -484,9 +427,7 @@ class WindhagerHttpClient:
                             "state_class": None,
                             "unit": "h",
                             "oid": device_id + fct_id + "/20/62/0",
-                            "device_id": (self.host + str(device["nodeId"]))
-                            .replace(".", "-")
-                            .replace("/", "-"),
+                            "device_id": self.slugify(self.host + str(device["nodeId"])),
                             "device_name": functions[0]["name"],
                         }
                     )
@@ -499,6 +440,10 @@ class WindhagerHttpClient:
         # Lecture de tous les OIDs trouvés
         for oid in self.oids:
             json = await self.fetch(oid)
-            ret["oids"][oid] = json["value"]
+            if "value" in json:
+                ret["oids"][oid] = json["value"]
+            else:
+                ret["oids"][oid] = None
+                _LOGGER.exception("Error while fetching oid %s no value detected. JSON = %s", oid, json)
 
         return ret
